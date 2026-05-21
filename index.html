@@ -1,0 +1,692 @@
+<!--
+  Copyright (c) 2026 Alan Miller
+  Released under the MIT License
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Relationshapez: Combinatoric Tester</title>
+  <style>
+    :root {
+      --gw-blue: #033C5A;
+      --gw-blue-2: #0b587f;
+      --gw-buff: #D6BF91;
+      --gw-buff-light: #f5efe3;
+      --paper: #fffdfa;
+      --white: #ffffff;
+      --shadow: 0 12px 30px rgba(3, 60, 90, 0.14);
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, var(--gw-buff-light) 0%, #fbf8f2 100%);
+      color: var(--gw-blue);
+    }
+
+    body { padding: 10px; }
+
+    .app-shell {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      min-height: calc(100vh - 20px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      min-height: 680px;
+      background: var(--white);
+      border: 3px solid var(--gw-blue);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      padding: 18px 16px 0 16px;
+      background: linear-gradient(180deg, #fffdfa 0%, #f8f3e8 100%);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 14px 0;
+      font-size: clamp(1.35rem, 5vw, 2rem);
+      color: var(--gw-blue);
+    }
+
+    .panel-wrap {
+      padding: 0 16px 18px 16px;
+      flex: 1;
+      display: flex;
+    }
+
+    .content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 2px solid var(--gw-buff);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .question-card {
+      min-height: 245px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .question {
+      font-size: clamp(1.08rem, 4.2vw, 1.34rem);
+      line-height: 1.55;
+      text-align: center;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .controls-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    button {
+      appearance: none;
+      border: 2px solid var(--gw-blue);
+      border-radius: 16px;
+      min-height: 54px;
+      padding: 12px 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.12s ease;
+      box-shadow: 0 4px 10px rgba(3, 60, 90, 0.09);
+      touch-action: manipulation;
+    }
+
+    button:active { transform: scale(0.985); }
+    button:focus-visible { outline: 4px solid rgba(127, 186, 227, 0.35); }
+
+    .primary {
+      background: var(--gw-blue);
+      color: var(--white);
+    }
+
+    .buff {
+      background: var(--gw-buff);
+      color: var(--gw-blue);
+      border-color: var(--gw-buff);
+    }
+
+    .secondary {
+      background: #f8f1e2;
+      color: var(--gw-blue);
+    }
+
+    .answer-card {
+      min-height: 230px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .answer-card.hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .answer {
+      margin: 0;
+      font-size: clamp(1.35rem, 6vw, 2.1rem);
+      font-weight: 800;
+      color: var(--gw-blue);
+    }
+
+    .kind {
+      margin: 0;
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: var(--gw-blue-2);
+    }
+
+    .formula, .explanation {
+      margin: 0;
+      font-size: clamp(0.98rem, 3.6vw, 1.08rem);
+      line-height: 1.5;
+      color: var(--gw-blue);
+    }
+
+    .formula {
+      font-weight: 700;
+    }
+
+    .topic-filters {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .topic-check {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 8px;
+      border: 2px solid var(--gw-blue);
+      border-radius: 16px;
+      background: #f8f1e2;
+      color: var(--gw-blue);
+      font-size: clamp(0.9rem, 3.4vw, 1rem);
+      font-weight: 700;
+      line-height: 1.15;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(3, 60, 90, 0.09);
+      user-select: none;
+    }
+
+    .topic-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--gw-blue);
+      flex: 0 0 auto;
+    }
+
+    .topic-check:has(input:checked) {
+      background: var(--gw-blue);
+      color: var(--white);
+      box-shadow: 0 0 0 4px rgba(3, 60, 90, 0.12);
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        min-height: calc(100vh - 20px);
+      }
+
+      .app-header,
+      .panel-wrap {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .controls,
+      .topic-filters {
+        grid-template-columns: 1fr;
+      }
+
+      .question-card {
+        min-height: 235px;
+      }
+
+      .answer-card {
+        min-height: 270px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="app">
+      <header class="app-header">
+        <div class="topic-filters" aria-label="Problem classes">
+          <label class="topic-check">
+            <input id="filter-combination" type="checkbox" value="combination" checked />
+            <span>Combinations</span>
+          </label>
+          <label class="topic-check">
+            <input id="filter-permutation" type="checkbox" value="permutation" checked />
+            <span>Permutations</span>
+          </label>
+          <label class="topic-check">
+            <input id="filter-both" type="checkbox" value="both" checked />
+            <span>Combinations and Permutations</span>
+          </label>
+        </div>
+      </header>
+
+      <div class="panel-wrap">
+        <section class="content" aria-label="Combinatoric Tester">
+          <div class="card question-card">
+            <p id="question" class="question"></p>
+          </div>
+
+          <div class="controls controls-2">
+            <button id="solution-btn" class="primary" type="button">Solution</button>
+            <button id="refresh-btn" class="buff" type="button">Refresh</button>
+          </div>
+
+          <div id="answer-card" class="card answer-card hidden" aria-live="polite">
+            <p id="answer" class="answer"></p>
+            <p id="kind" class="kind"></p>
+            <p id="formula" class="formula"></p>
+            <p id="explanation" class="explanation"></p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const questionEl = document.getElementById('question');
+      const answerCard = document.getElementById('answer-card');
+      const answerEl = document.getElementById('answer');
+      const kindEl = document.getElementById('kind');
+      const formulaEl = document.getElementById('formula');
+      const explanationEl = document.getElementById('explanation');
+      const solutionBtn = document.getElementById('solution-btn');
+      const refreshBtn = document.getElementById('refresh-btn');
+      const filterBoxes = Array.from(document.querySelectorAll('.topic-check input'));
+
+      let current = null;
+      let previousQuestion = '';
+
+      function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function factorial(n) {
+        let out = 1;
+        for (let i = 2; i <= n; i += 1) out *= i;
+        return out;
+      }
+
+      function C(n, r) {
+        if (r < 0 || r > n) return 0;
+        return factorial(n) / (factorial(r) * factorial(n - r));
+      }
+
+      function P(n, r) {
+        if (r < 0 || r > n) return 0;
+        return factorial(n) / factorial(n - r);
+      }
+
+      function numberText(n) {
+        return n.toLocaleString('en-US');
+      }
+
+      const generators = [
+        {
+          topic: 'combination',
+          make: () => {
+            const n = randInt(8, 14);
+            const r = randInt(3, Math.min(6, n - 2));
+            const answer = C(n, r);
+            return {
+              question: `In how many ways can a committee of ${r} students be chosen from ${n} students?`,
+              answer,
+              kind: 'Combination',
+              formula: `C(${n}, ${r}) = ${numberText(answer)}`,
+              explanation: 'This is a combination because the order of the students on the committee does not matter.'
+            };
+          }
+        },
+        {
+          topic: 'combination',
+          make: () => {
+            const n = randInt(9, 14);
+            const r = randInt(3, 5);
+            const answer = C(n - 1, r - 1);
+            return {
+              question: `In how many ways can a group of ${r} students be chosen from ${n} students if Alex must be included?`,
+              answer,
+              kind: 'Combination',
+              formula: `C(${n - 1}, ${r - 1}) = ${numberText(answer)}`,
+              explanation: 'Alex is already chosen, so we only choose the remaining students.'
+            };
+          }
+        },
+        {
+          topic: 'combination',
+          make: () => {
+            const n = randInt(9, 14);
+            const r = randInt(3, 5);
+            const answer = C(n - 1, r);
+            return {
+              question: `In how many ways can a group of ${r} students be chosen from ${n} students if Jordan cannot be chosen?`,
+              answer,
+              kind: 'Combination',
+              formula: `C(${n - 1}, ${r}) = ${numberText(answer)}`,
+              explanation: 'Jordan is removed from the pool, so we choose from the remaining students.'
+            };
+          }
+        },
+        {
+          topic: 'combination',
+          make: () => {
+            const n = randInt(10, 14);
+            const s = randInt(3, 5);
+            const r = randInt(3, 5);
+            const answer = C(n, r) - C(n - s, r);
+            return {
+              question: `A club has ${n} students, including ${s} seniors. In how many ways can a committee of ${r} be chosen if at least one senior must be chosen?`,
+              answer,
+              kind: 'Combination',
+              formula: `C(${n}, ${r}) - C(${n - s}, ${r}) = ${numberText(answer)}`,
+              explanation: 'Use the complement: all committees minus committees with no seniors.'
+            };
+          }
+        },
+        {
+          topic: 'combination',
+          make: () => {
+            const hearts = 13;
+            const others = 39;
+            const c = randInt(5, 13);
+            const h = randInt(2, c);
+            const rest = c - h;
+            const answer = C(hearts, h) * C(others, rest);
+            return {
+              question: `Choose ${c} cards at random from a standard deck that contains 52 cards divided into four suits (spades, hearts, diamonds, and clubs) where each suit consists of 13 cards. How many of the possible sets of ${c} cards will have exactly ${h} hearts?`,
+              answer,
+              kind: 'Multiple combinations',
+              formula: `C(13, ${h}) · C(39, ${rest}) = ${numberText(answer)}`,
+              explanation: `Choose the ${h} hearts from the 13 hearts, then choose the remaining ${rest} card${rest === 1 ? '' : 's'} from the 39 non-hearts. Order does not matter because the question asks for sets of cards.`
+            };
+          }
+        },
+        {
+          topic: 'combination',
+          make: () => {
+            const n = randInt(7, 12);
+            const answer = C(n, 3);
+            return {
+              question: `If no three points are collinear, how many triangles can be formed from ${n} points?`,
+              answer,
+              kind: 'Combination',
+              formula: `C(${n}, 3) = ${numberText(answer)}`,
+              explanation: 'Each triangle is determined by choosing 3 points. The order of the points does not matter.'
+            };
+          }
+        },
+        {
+          topic: 'combination',
+          make: () => {
+            const n = randInt(8, 16);
+            const answer = C(n, 2);
+            return {
+              question: `If ${n} people each shake hands with every other person once, how many handshakes occur?`,
+              answer,
+              kind: 'Combination',
+              formula: `C(${n}, 2) = ${numberText(answer)}`,
+              explanation: 'A handshake is determined by choosing a pair of people.'
+            };
+          }
+        },
+        {
+          topic: 'permutation',
+          make: () => {
+            const n = randInt(5, 8);
+            const answer = factorial(n);
+            return {
+              question: `In how many ways can ${n} students line up for a photo?`,
+              answer,
+              kind: 'Permutation',
+              formula: `${n}! = ${numberText(answer)}`,
+              explanation: 'This is a permutation because the order of the students matters.'
+            };
+          }
+        },
+        {
+          topic: 'permutation',
+          make: () => {
+            const n = randInt(5, 9);
+            const answer = factorial(n - 1);
+            return {
+              question: `In how many ways can ${n} dancers form a circle for a folk dance?`,
+              answer,
+              kind: 'Circular permutation',
+              formula: `(${n} - 1)! = ${numberText(answer)}`,
+              explanation: 'Rotations of the same circle count as the same arrangement, so we fix one dancer and arrange the rest.'
+            };
+          }
+        },
+        {
+          topic: 'permutation',
+          make: () => {
+            const words = [
+              ['MATH', 24, '4!'],
+              ['GRAPH', 120, '5!'],
+              ['CHAOS', 120, '5!'],
+              ['LOGIC', 120, '5!'],
+              ['VECTOR', 720, '6!']
+            ];
+            const [word, answer, formula] = words[randInt(0, words.length - 1)];
+            return {
+              question: `How many permutations are there of the letters in ${word}?`,
+              answer,
+              kind: 'Permutation',
+              formula: `${formula} = ${numberText(answer)}`,
+              explanation: 'All letters are distinct, so every ordering gives a different arrangement.'
+            };
+          }
+        },
+        {
+          topic: 'permutation',
+          make: () => {
+            const words = [
+              ['MOON', 12, '4! / 2!'],
+              ['LEVEL', 30, '5! / (2!2!)'],
+              ['BANANA', 60, '6! / (3!2!)'],
+              ['LETTER', 180, '6! / (2!2!)'],
+              ['TATTOO', 180, '6! / (2!2!)']
+            ];
+            const [word, answer, formula] = words[randInt(0, words.length - 1)];
+            return {
+              question: `How many distinguishable permutations are there of the letters in ${word}?`,
+              answer,
+              kind: 'Permutation with repeated letters',
+              formula: `${formula} = ${numberText(answer)}`,
+              explanation: 'Repeated letters create duplicate arrangements, so we divide by the factorials of the repeated counts.'
+            };
+          }
+        },
+        {
+          topic: 'permutation',
+          make: () => {
+            const n = randInt(8, 12);
+            const r = randInt(3, 4);
+            const answer = P(n, r);
+            return {
+              question: `In how many ways can ${r} different offices be filled from ${n} students?`,
+              answer,
+              kind: 'Permutation',
+              formula: `P(${n}, ${r}) = ${numberText(answer)}`,
+              explanation: 'The offices are different roles, so changing who gets which role changes the outcome.'
+            };
+          }
+        },
+        {
+          topic: 'permutation',
+          make: () => {
+            const n = randInt(6, 8);
+            const answer = 2 * factorial(n - 1);
+            return {
+              question: `In how many ways can ${n} students line up if Alex and Sam must stand together?`,
+              answer,
+              kind: 'Permutation with a block',
+              formula: `2! · (${n} - 1)! = ${numberText(answer)}`,
+              explanation: 'Treat Alex and Sam as one block, arrange the block with the other students, then arrange Alex and Sam inside the block.'
+            };
+          }
+        },
+        {
+          topic: 'both',
+          make: () => {
+            const n = randInt(9, 13);
+            const r = randInt(3, 5);
+            const answer = C(n, r) * factorial(r);
+            return {
+              question: `In how many ways can ${r} students be chosen from ${n} students and then arranged in a line?`,
+              answer,
+              kind: 'Combination and permutation',
+              formula: `C(${n}, ${r}) · ${r}! = ${numberText(answer)}`,
+              explanation: 'First choose the students. Then arrange the chosen students.'
+            };
+          }
+        },
+        {
+          topic: 'both',
+          make: () => {
+            const n = randInt(9, 13);
+            const r = randInt(4, 6);
+            const answer = C(n, r) * factorial(r - 1);
+            return {
+              question: `In how many ways can ${r} people be chosen from ${n} people and seated around a round table?`,
+              answer,
+              kind: 'Combination and circular permutation',
+              formula: `C(${n}, ${r}) · (${r} - 1)! = ${numberText(answer)}`,
+              explanation: 'First choose the people. Then arrange the chosen people around a circle.'
+            };
+          }
+        },
+        {
+          topic: 'both',
+          make: () => {
+            const n = randInt(10, 14);
+            const committee = randInt(5, 7);
+            const roles = randInt(2, 3);
+            const answer = C(n, committee) * P(committee, roles);
+            return {
+              question: `A committee of ${committee} is chosen from ${n} students. Then ${roles} different officer roles are filled from the committee. How many outcomes are possible?`,
+              answer,
+              kind: 'Combination and permutation',
+              formula: `C(${n}, ${committee}) · P(${committee}, ${roles}) = ${numberText(answer)}`,
+              explanation: 'First choose the committee. Then assign distinct roles to some members of the committee.'
+            };
+          }
+        },
+        {
+          topic: 'both',
+          make: () => {
+            const freshmen = randInt(6, 9);
+            const sophomores = randInt(6, 9);
+            const f = randInt(2, 3);
+            const s = randInt(2, 3);
+            const total = f + s;
+            const answer = C(freshmen, f) * C(sophomores, s) * factorial(total);
+            return {
+              question: `From ${freshmen} freshmen and ${sophomores} sophomores, choose ${f} freshmen and ${s} sophomores, then arrange the chosen students in a line. How many outcomes are possible?`,
+              answer,
+              kind: 'Multiple combinations and a permutation',
+              formula: `C(${freshmen}, ${f}) · C(${sophomores}, ${s}) · ${total}! = ${numberText(answer)}`,
+              explanation: 'Choose from each category first, then arrange everyone who was chosen.'
+            };
+          }
+        },
+        {
+          topic: 'both',
+          make: () => {
+            const letters = randInt(5, 8);
+            const digits = randInt(7, 10);
+            const l = 2;
+            const d = 2;
+            const answer = C(letters, l) * C(digits, d) * factorial(4);
+            return {
+              question: `A code uses ${l} distinct letters chosen from ${letters} letters and ${d} distinct digits chosen from ${digits} digits. The 4 symbols are then arranged in any order. How many codes are possible?`,
+              answer,
+              kind: 'Multiple combinations and a permutation',
+              formula: `C(${letters}, ${l}) · C(${digits}, ${d}) · 4! = ${numberText(answer)}`,
+              explanation: 'Choose the letters and digits first, then arrange the four chosen symbols.'
+            };
+          }
+        },
+        {
+          topic: 'both',
+          make: () => {
+            const n = randInt(9, 13);
+            const answer = C(n, 3) * factorial(3);
+            return {
+              question: `From ${n} points, choose 3 points to form a triangle, then label the vertices A, B, and C. How many labeled triangles are possible?`,
+              answer,
+              kind: 'Combination and permutation',
+              formula: `C(${n}, 3) · 3! = ${numberText(answer)}`,
+              explanation: 'First choose the 3 points. Then assign the labels A, B, and C to those points.'
+            };
+          }
+        }
+      ];
+
+      function selectedTopics() {
+        return filterBoxes
+          .filter(box => box.checked)
+          .map(box => box.value);
+      }
+
+      function availableGenerators() {
+        const selected = selectedTopics();
+        return generators.filter(item => selected.includes(item.topic));
+      }
+
+      function keepAtLeastOneChecked(changedBox) {
+        if (selectedTopics().length === 0) {
+          changedBox.checked = true;
+        }
+      }
+
+      function newQuestion() {
+        const choices = availableGenerators();
+        let item = choices[randInt(0, choices.length - 1)].make();
+        let guard = 0;
+        while (item.question === previousQuestion && guard < 8) {
+          item = choices[randInt(0, choices.length - 1)].make();
+          guard += 1;
+        }
+        current = item;
+        previousQuestion = item.question;
+        questionEl.textContent = item.question;
+        answerCard.classList.add('hidden');
+        answerEl.textContent = '';
+        kindEl.textContent = '';
+        formulaEl.textContent = '';
+        explanationEl.textContent = '';
+      }
+
+      function showSolution() {
+        if (!current) return;
+        answerEl.textContent = numberText(current.answer);
+        kindEl.textContent = current.kind;
+        formulaEl.textContent = current.formula;
+        explanationEl.textContent = current.explanation;
+        answerCard.classList.remove('hidden');
+      }
+
+      solutionBtn.addEventListener('click', showSolution);
+      refreshBtn.addEventListener('click', newQuestion);
+      filterBoxes.forEach((box) => {
+        box.addEventListener('change', () => {
+          keepAtLeastOneChecked(box);
+          newQuestion();
+        });
+      });
+
+      newQuestion();
+    })();
+  </script>
+</body>
+</html>
