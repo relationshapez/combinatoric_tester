@@ -8,9 +8,7 @@
 - `README.md` — repository overview and usage guide
 - `LICENSE` — MIT license text
 
-```text
-https://relationshapez.github.io/combinatorictester/
-```
+<https://relationshapez.github.io/combinatoric_tester/>
 
 ## How to Use the App
 
